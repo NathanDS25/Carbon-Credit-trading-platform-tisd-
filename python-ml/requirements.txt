@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-rasterio
-numpy
-requests
-Pillow
-scikit-learn
-python-multipart
