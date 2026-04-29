@@ -1,4 +1,7 @@
 const { z } = require('zod');
+const prisma = require('../config/prisma');
+const { addAnalysisJob } = require('../services/satelliteService');
+const { mintCreditsOnChain } = require('../services/blockchainService');
 
 const plantationSchema = z.object({
   name: z.string().min(3),
@@ -34,6 +37,7 @@ const createPlantation = async (req, res, next) => {
       areaSqKm: parseFloat(areaSqKm),
     });
 
+    console.log('✅ Plantation created successfully');
     res.status(201).json({ success: true, data: plantation });
   } catch (error) {
     next(error);

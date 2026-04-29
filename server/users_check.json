@@ -1,0 +1,12 @@
+[
+  {
+    "id": "test-ngo-id",
+    "firebaseUid": "mock-firebase-uid",
+    "name": "Green Earth NGO",
+    "email": "test@ngo.com",
+    "role": "NGO",
+    "walletAddress": "0x61080a970e39b97ddfa49825c6b166a419de6f4814e5f314e14663041bfe29cb",
+    "creditBalance": 0,
+    "createdAt": "2026-04-29T14:56:35.389Z"
+  }
+]

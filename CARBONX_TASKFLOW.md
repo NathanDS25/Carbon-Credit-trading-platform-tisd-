@@ -12,14 +12,9 @@ Follow these steps in order to get the platform fully operational.
 - [x] **Update .env**: (DONE)
 
 ## 3. API Keys & Credentials
-- [ ] **Firebase**: 
-    - Create a project in Firebase Console.
-    - Go to Project Settings > Service Accounts.
-    - Generate a new private key and paste the details into `server/.env`.
-- [ ] **Alchemy**:
-    - Create a Sepolia app and get your RPC URL.
-- [ ] **AWS S3**: 
-    - Create a bucket and provide IAM credentials for image storage.
+- [x] **Firebase**: (DONE: carbonx-31b29)
+- [x] **Alchemy**: (DONE: Sepolia)
+- [x] **Supabase Storage**: (DONE: plantations)
 
 ## 4. Running the Platform
 - [ ] **Terminal 1 (Python)**:

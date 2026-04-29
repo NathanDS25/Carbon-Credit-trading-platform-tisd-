@@ -1,6 +1,7 @@
 const { satelliteQueue } = require('../services/satelliteService');
 const axios = require('axios');
 const prisma = require('../config/prisma');
+const { sendAdminNotification } = require('../services/notificationService');
 
 satelliteQueue.process(async (job) => {
   const { plantationId, imageUrl, lat, lng, areaSqKm } = job.data;
@@ -44,6 +45,12 @@ satelliteQueue.process(async (job) => {
         status: 'VERIFIED', // Ready for admin review
       },
     });
+
+    // Notify Admin
+    await sendAdminNotification(
+      'Satellite Verification Complete',
+      `Plantation ${plantationId} has been verified with Grade ${result.qualityGrade}. Ready for approval.`
+    );
 
     console.log(`Job ${job.id} completed for plantation ${plantationId}`);
     return result;

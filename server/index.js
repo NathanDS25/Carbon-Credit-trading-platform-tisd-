@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middleware/errorHandler');
@@ -28,6 +29,17 @@ app.get('/', (req, res) => {
 // Error Handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Database Connection Test
+  try {
+    const prisma = require('./config/prisma');
+    console.log('⏳ Testing database connection...');
+    const userCount = await prisma.user.count();
+    console.log(`✅ Database connected! User count: ${userCount}`);
+  } catch (error) {
+    console.error('❌ Database connection failed during startup!');
+    console.error(error.message);
+  }
 });

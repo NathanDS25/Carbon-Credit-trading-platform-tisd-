@@ -9,3 +9,5 @@ __pycache__
 venv
 env
 prisma/migrations
+firebase-key.json
+firebase-key.txt
