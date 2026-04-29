@@ -42,7 +42,8 @@ satelliteQueue.process(async (job) => {
       data: {
         currentNDVI: result.ndviValue,
         qualityGrade: result.qualityGrade,
-        status: 'VERIFIED', // Ready for admin review
+        satelliteImageUrl: result.satelliteImage,
+        status: result.status === 'VERIFIED' ? 'VERIFIED' : 'REJECTED',
       },
     });
 

@@ -13,7 +13,7 @@ async function testUpload() {
       imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
     }, {
       headers: {
-        Authorization: 'Bearer MOCK_ADMIN_TOKEN', 
+        Authorization: 'Bearer MOCK_NGO_TOKEN', 
       },
     });
 

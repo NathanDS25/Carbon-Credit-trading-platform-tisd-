@@ -78,6 +78,7 @@ model Plantation {
   verifiedAt      DateTime?
   status          PlantationStatus @default(PENDING)
   txHash          String?
+  satelliteImageUrl String?
   createdAt       DateTime         @default(now())
 
   satelliteJobs   SatelliteJob[]
