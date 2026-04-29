@@ -27,7 +27,21 @@ const getMe = async (req, res) => {
   res.json({ success: true, data: req.user });
 };
 
+const updateRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { role: role.toUpperCase() }
+    });
+    res.json({ success: true, data: updatedUser });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   register,
   getMe,
+  updateRole
 };

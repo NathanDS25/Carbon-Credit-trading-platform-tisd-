@@ -20,6 +20,7 @@ app.use('/api/heatmap', require('./routes/heatmapRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/meetings', require('./routes/meetingRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 // Root route
 app.get('/', (req, res) => {

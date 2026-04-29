@@ -8,14 +8,21 @@ const verifyToken = async (req, res, next) => {
     return res.status(401).json({ success: false, error: 'Unauthorized: No token provided' });
   }
 
-  if (token === 'MOCK_ADMIN_TOKEN') {
-    const user = await prisma.user.findUnique({ where: { id: '17f43afd-c912-4e51-8c33-1abce143ae55' } });
-    req.user = user;
-    return next();
-  }
-
-  if (token === 'MOCK_NGO_TOKEN') {
-    const user = await prisma.user.findUnique({ where: { id: 'test-ngo-id' } });
+  // Support for development mock mode
+  if (token === 'MOCK_DEV_TOKEN') {
+    let user = await prisma.user.findFirst(); // Just get any user for testing if no specific dev user
+    if (!user) {
+        // Create a dummy user if DB is empty
+        user = await prisma.user.create({
+            data: {
+                id: 'dev-user-id',
+                firebaseUid: 'mock-uid',
+                name: 'Developer User',
+                email: 'dev@carbonx.com',
+                role: 'NGO'
+            }
+        });
+    }
     req.user = user;
     return next();
   }
