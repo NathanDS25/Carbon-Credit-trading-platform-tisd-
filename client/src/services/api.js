@@ -9,11 +9,18 @@ const api = axios.create({
   },
 });
 
-// Interceptor to add auth tokens (including mock tokens for testing)
+// Interceptor to add auth tokens and mock role headers
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
+  const role = localStorage.getItem('userRole');
+  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    
+    // In dev mode, send the selected role to sync backend
+    if (token === 'MOCK_DEV_TOKEN' && role) {
+      config.headers['X-Mock-Role'] = role;
+    }
   }
   return config;
 });

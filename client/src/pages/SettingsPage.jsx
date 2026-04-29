@@ -104,7 +104,10 @@ const SettingsPage = () => {
           {/* Tab Content Area */}
           <div className="lg:col-span-3 glass p-10 rounded-3xl border border-white/5 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5">
-              {tabs.find(t => t.label === activeTab)?.icon({ size: 120 })}
+              {(() => {
+                const ActiveIcon = tabs.find(t => t.label === activeTab)?.icon;
+                return ActiveIcon ? <ActiveIcon size={120} /> : null;
+              })()}
             </div>
             
             <AnimatePresence mode="wait">

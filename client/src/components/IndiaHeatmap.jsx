@@ -8,6 +8,7 @@ const INDIA_GEOJSON_URL = 'https://raw.githubusercontent.com/HindustanTimesLabs/
 const IndiaHeatmap = ({ data, onStateClick }) => {
   const svgRef = useRef();
   const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: null });
+  const [is3D, setIs3D] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -89,14 +90,13 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
           if (onStateClick) onStateClick(d.properties.st_nm);
         });
 
-      // Animated Pulse Dots for Active Areas
+      // Animated Pulse Dots
       const activeStates = geojson.features.filter(f => data?.[f.properties.st_nm]);
       activeStates.forEach(feature => {
         const centroid = path.centroid(feature);
         const stateData = data[feature.properties.st_nm];
         const color = stateData.quality >= 80 ? '#00C896' : '#FFD700';
 
-        // Outer Pulse
         g.append('circle')
           .attr('cx', centroid[0])
           .attr('cy', centroid[1])
@@ -108,24 +108,8 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
           .attr('from', '4')
           .attr('to', '15')
           .attr('dur', '2s')
-          .attr('begin', '0s')
           .attr('repeatCount', 'indefinite');
 
-        g.append('circle')
-          .attr('cx', centroid[0])
-          .attr('cy', centroid[1])
-          .attr('r', 4)
-          .attr('fill', color)
-          .attr('opacity', 0.3)
-          .append('animate')
-          .attr('attributeName', 'opacity')
-          .attr('from', '0.6')
-          .attr('to', '0')
-          .attr('dur', '2s')
-          .attr('begin', '0s')
-          .attr('repeatCount', 'indefinite');
-
-        // Inner Core
         g.append('circle')
           .attr('cx', centroid[0])
           .attr('cy', centroid[1])
@@ -136,17 +120,37 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
       });
 
       setIsLoaded(true);
-    }).catch(err => console.error("Map Error:", err));
+    }).catch(err => {
+      console.error("Map Error:", err);
+      setIsLoaded(true);
+    });
   }, [data]);
 
   return (
     <div className="relative w-full h-full map-perspective overflow-visible">
+      {/* Perspective Toggle */}
+      <div className="absolute top-0 right-0 z-10 flex gap-2">
+        <button 
+          onClick={() => setIs3D(!is3D)}
+          className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+            is3D ? 'bg-primary text-background' : 'glass text-text-secondary border-white/5'
+          }`}
+        >
+          {is3D ? 'View 2D Clarity' : 'Engage 3D Tilt'}
+        </button>
+      </div>
+
       <motion.div 
-        initial={{ opacity: 0, scale: 0.92, rotateX: 10 }}
-        animate={isLoaded ? { opacity: 1, scale: 1, rotateX: 28 } : {}}
-        transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-        className="map-tilted w-full h-full"
-        style={{ transformOrigin: 'center 60%' }}
+        initial={{ opacity: 0, scale: 0.92 }}
+        animate={isLoaded ? { 
+          opacity: 1, 
+          scale: 1, 
+          rotateX: is3D ? 28 : 0,
+          rotateZ: is3D ? -2 : 0,
+        } : {}}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        className="w-full h-full"
+        style={{ transformOrigin: 'center 60%', transformStyle: 'preserve-3d' }}
       >
         <svg ref={svgRef} className="w-full h-full drop-shadow-[0_0_80px_rgba(0,200,150,0.08)]"></svg>
       </motion.div>
