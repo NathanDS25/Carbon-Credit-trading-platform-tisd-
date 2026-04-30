@@ -49,7 +49,7 @@ const SatelliteIntelligence = ({ plantation }) => {
             </div>
             <div className="aspect-square rounded-xl overflow-hidden border border-white/10 relative">
                <img 
-                 src={plantation.satelliteImageUrl || latestJob.satelliteImage || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000'} 
+                 src={plantation.satelliteImageUrl || latestJob.satelliteImage || `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/17/${Math.floor((parseFloat(plantation.lng) + 180) / 360 * Math.pow(2, 17))}/${Math.floor((1 - Math.log(Math.tan(parseFloat(plantation.lat) * Math.PI / 180) + 1 / Math.cos(parseFloat(plantation.lat) * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, 17))}`} 
                  alt="Satellite View" 
                  className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
                  onError={(e) => {

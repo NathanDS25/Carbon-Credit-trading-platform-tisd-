@@ -248,12 +248,13 @@ const NGODashboard = () => {
                     >
                         <div className="aspect-video relative bg-[#0A0C10]">
                             <img 
-                                src={previewData?.satelliteImage || `https://maps.googleapis.com/maps/api/staticmap?center=${formData.lat},${formData.lng}&zoom=17&size=600x300&maptype=satellite&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ''}`} 
+                                src={previewData?.satelliteImage || `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}`.replace('{z}', '18').replace('{x}', Math.floor((parseFloat(formData.lng) + 180) / 360 * Math.pow(2, 18))).replace('{y}', Math.floor((1 - Math.log(Math.tan(parseFloat(formData.lat) * Math.PI / 180) + 1 / Math.cos(parseFloat(formData.lat) * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, 18)))} 
                                 alt="Location Preview" 
-                                className="w-full h-full object-cover opacity-80"
+                                className="w-full h-full object-cover opacity-90"
                                 onError={(e) => {
+                                    // Fallback to a simpler static map if the tile math fails
                                     e.target.onerror = null;
-                                    e.target.src = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000"; // High-res orbital forest placeholder
+                                    e.target.src = `https://stamen-tiles.a.ssl.fastly.net/terrain/${18}/${Math.floor((parseFloat(formData.lng) + 180) / 360 * Math.pow(2, 18))}/${Math.floor((1 - Math.log(Math.tan(parseFloat(formData.lat) * Math.PI / 180) + 1 / Math.cos(parseFloat(formData.lat) * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, 18))}.png`;
                                 }}
                             />
                             {isScanning && (
