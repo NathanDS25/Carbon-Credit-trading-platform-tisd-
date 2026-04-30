@@ -32,10 +32,13 @@ const NGODashboard = () => {
   const [previewData, setPreviewData] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [locationName, setLocationName] = useState('');
+  const [logs, setLogs] = useState(["SYSTEM INITIALIZED", "WAITING FOR COORDINATES..."]);
+
+  const addLog = (msg) => setLogs(prev => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 4)]);
 
   useEffect(() => {
     fetchPlantations();
-    detectLocation(); // Proactive request
+    detectLocation(); 
   }, []);
 
   const fetchPlantations = async () => {
@@ -54,6 +57,7 @@ const NGODashboard = () => {
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
+      addLog("INITIATING GPS HANDSHAKE...");
       toast.loading("Locating Orbital Position...", { id: 'gps' });
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
@@ -62,19 +66,23 @@ const NGODashboard = () => {
           lat: latitude.toFixed(6),
           lng: longitude.toFixed(6)
         }));
+        addLog("GPS LOCK ESTABLISHED");
         toast.success("GPS Lock Established", { id: 'gps' });
         
-        // Reverse Geocoding for "Human Readable" location
         try {
+          addLog("RESOLVING GEOGRAPHIC ADDRESS...");
           const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`);
           const data = await res.json();
           if (data.results?.[0]) {
-            setLocationName(data.results[0].formatted_address);
+            const addr = data.results[0].formatted_address;
+            setLocationName(addr);
+            addLog(`LOCATION: ${addr.substring(0, 30)}...`);
           }
         } catch (e) {
           setLocationName(`${latitude.toFixed(2)}°N, ${longitude.toFixed(2)}°E`);
         }
       }, (error) => {
+        addLog("ERROR: GPS ACCESS DENIED");
         toast.error("Location Access Denied. Please enable GPS.", { id: 'gps' });
       });
     } else {
@@ -88,15 +96,19 @@ const NGODashboard = () => {
       return;
     }
     setIsScanning(true);
+    addLog("OPENING ORBITAL SHUTTER...");
     try {
+      addLog("SCANNING VEGETATION DENSITY...");
       const response = await api.post('/plantations/preview', {
         lat: formData.lat,
         lng: formData.lng,
         areaSqKm: formData.areaSqKm
       });
       setPreviewData(response.data.data);
+      addLog(`NDVI ANALYSIS COMPLETE: ${(response.data.data.ndviValue * 100).toFixed(1)}%`);
       toast.success("Satellite Probe Successful");
     } catch (error) {
+      addLog("ERROR: SATELLITE ENGINE OFFLINE");
       toast.error("Satellite Scan Failed: " + (error.response?.data?.error || "Connection error"));
     } finally {
       setIsScanning(false);
@@ -235,11 +247,12 @@ const NGODashboard = () => {
                   <label className="text-[10px] uppercase text-text-secondary font-bold">Plantation Name</label>
                   <input 
                     type="text" 
-                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-primary outline-none" 
+                    className="w-full bg-[#080A0D] border border-primary/20 rounded-lg px-4 py-3 text-sm focus:border-primary outline-none shadow-[0_0_15px_rgba(0,255,180,0.05)]" 
                     placeholder="E.g. Amazon Basin R1" 
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
+                </div>
                   {formData.lat && formData.lng && (
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -334,13 +347,26 @@ const NGODashboard = () => {
                   />
                 </div>
 
-                <button 
-                  onClick={handleUpload}
-                  className="btn-primary w-full py-3 mt-4"
-                >
-                  Initialize Analysis
-                </button>
-              </div>
+                  <button 
+                    onClick={handleUpload}
+                    className="btn-primary w-full py-4 mt-4 shadow-glow-green text-sm"
+                  >
+                    DEPLOY ORBITAL ANALYSIS
+                  </button>
+
+                  {/* System Console */}
+                  <div className="mt-6 p-4 bg-black/80 rounded-xl border border-white/5 font-mono text-[9px] space-y-1 overflow-hidden h-28 relative">
+                      <div className="absolute top-2 right-4 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        <span className="text-primary/50 text-[7px] uppercase tracking-widest">Live Link</span>
+                      </div>
+                      {logs.map((log, i) => (
+                        <div key={i} className={i === 0 ? 'text-primary' : 'text-text-muted opacity-50'}>
+                          {log}
+                        </div>
+                      ))}
+                  </div>
+                </div>
 
               {/* Live Status Tracker */}
               <AnimatePresence>
