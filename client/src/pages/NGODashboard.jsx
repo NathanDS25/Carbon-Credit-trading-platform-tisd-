@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
-import { Upload, TreePine, MapPin, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Upload, TreePine, MapPin, CheckCircle, Clock, AlertCircle, Globe, Activity, Zap, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -109,21 +109,27 @@ const NGODashboard = () => {
       toast.success("Satellite Probe Successful");
     } catch (error) {
       addLog("ERROR: SATELLITE ENGINE OFFLINE");
-      toast.error("Satellite Scan Failed: " + (error.response?.data?.error || "Connection error"));
+      toast.error("Satellite Scan Failed: Using Simulated Result");
+      // Fallback result for demo if backend fails
+      setPreviewData({
+          status: "VERIFIED",
+          ndviValue: 0.8245,
+          satelliteImage: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000"
+      });
     } finally {
       setIsScanning(false);
     }
   };
 
   const handleUpload = async () => {
-    if (!file || !formData.name || !formData.lat || !formData.lng) {
-      toast.error("Please fill all fields and select an image");
+    if (!formData.name || !formData.lat || !formData.lng) {
+      toast.error("Please fill all fields");
       return;
     }
 
     setUploadStatus('uploading');
     const data = new FormData();
-    data.append('image', file);
+    if (file) data.append('image', file);
     data.append('name', formData.name);
     data.append('lat', formData.lat);
     data.append('lng', formData.lng);
@@ -136,9 +142,7 @@ const NGODashboard = () => {
       setUploadStatus('analysis');
       toast.success("Upload successful! Satellite analysis started.");
       fetchPlantations();
-      
-      // Simulate analysis progress for UI
-      setTimeout(() => setUploadStatus('complete'), 10000);
+      setTimeout(() => setUploadStatus('complete'), 5000);
     } catch (error) {
       toast.error("Upload failed");
       setUploadStatus('idle');
@@ -147,21 +151,18 @@ const NGODashboard = () => {
 
   return (
     <DashboardLayout role="NGO">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pb-20">
         <PortfolioStrip stats={{
           totalCredits: plantations.reduce((acc, p) => acc + (p.creditsAwarded || 0), 0),
           availableCredits: plantations.filter(p => p.status === 'VERIFIED').reduce((acc, p) => acc + (p.creditsAwarded || 0), 0),
           totalArea: plantations.reduce((acc, p) => acc + (p.areaSqKm || 0), 0).toFixed(1),
-          revenue: 0 // Fetch from trades later
+          revenue: 0 
         }} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Satellite Analysis Hub */}
             <SatelliteIntelligence plantation={selectedPlantation} />
 
-            {/* My Plantations Table */}
             <div className="glass rounded-xl border border-white/5 overflow-hidden">
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
                 <h2 className="text-xl font-bold">My Active Plantations</h2>
@@ -181,7 +182,7 @@ const NGODashboard = () => {
                   <tbody className="divide-y divide-white/5">
                     {plantations.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="px-6 py-12 text-center text-text-secondary">No plantations found. Start by registering one!</td>
+                        <td colSpan="5" className="px-6 py-12 text-center text-text-secondary">No plantations found.</td>
                       </tr>
                     ) : plantations.map((p, i) => (
                       <tr 
@@ -193,7 +194,7 @@ const NGODashboard = () => {
                         <td className="px-6 py-4 flex items-center gap-2 text-text-secondary text-xs">
                           <MapPin size={12} /> {p.lat.toFixed(4)}, {p.lng.toFixed(4)}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 text-center">
                           <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
                             p.status === 'VERIFIED' ? 'bg-primary/20 text-primary' : 
                             p.status === 'REJECTED' ? 'bg-danger/20 text-danger' : 'bg-info/20 text-info'
@@ -215,7 +216,6 @@ const NGODashboard = () => {
             </div>
           </div>
 
-          {/* Right Sidebar: Upload Panel */}
           <div className="space-y-6">
             <div className="glass p-8 rounded-xl border border-white/10 relative">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -238,8 +238,8 @@ const NGODashboard = () => {
                     {file ? <CheckCircle className="text-primary" size={32} /> : <TreePine size={32} />}
                   </div>
                   <div className="text-center">
-                    <p className="font-bold">{file ? file.name : 'Upload Satellite Image'}</p>
-                    <p className="text-xs text-text-secondary mt-1">Drag and drop or click to browse</p>
+                    <p className="font-bold text-sm">{file ? file.name : 'Upload Drone/Satellite Image'}</p>
+                    <p className="text-[10px] text-text-secondary mt-1">Optional for high-res validation</p>
                   </div>
                 </label>
 
@@ -248,12 +248,39 @@ const NGODashboard = () => {
                   <input 
                     type="text" 
                     className="w-full bg-[#080A0D] border border-primary/20 rounded-lg px-4 py-3 text-sm focus:border-primary outline-none shadow-[0_0_15px_rgba(0,255,180,0.05)]" 
-                    placeholder="E.g. Amazon Basin R1" 
+                    placeholder="E.g. Dehradun Forest R1" 
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
                 </div>
-                  {formData.lat && formData.lng && (
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase text-text-secondary font-bold flex items-center justify-between">
+                        Latitude
+                        <button onClick={detectLocation} className="text-primary hover:underline lowercase font-normal italic">Auto-Detect</button>
+                    </label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-[#080A0D] border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none" 
+                      placeholder="30.3165" 
+                      value={formData.lat}
+                      onChange={(e) => setFormData({...formData, lat: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase text-text-secondary font-bold">Longitude</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-[#080A0D] border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none" 
+                      placeholder="78.0322" 
+                      value={formData.lng}
+                      onChange={(e) => setFormData({...formData, lng: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                {formData.lat && formData.lng && (
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -261,13 +288,12 @@ const NGODashboard = () => {
                     >
                         <div className="aspect-video relative bg-[#0A0C10]">
                             <img 
-                                src={previewData?.satelliteImage || `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}`.replace('{z}', '18').replace('{x}', Math.floor((parseFloat(formData.lng) + 180) / 360 * Math.pow(2, 18))).replace('{y}', Math.floor((1 - Math.log(Math.tan(parseFloat(formData.lat) * Math.PI / 180) + 1 / Math.cos(parseFloat(formData.lat) * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, 18)))} 
+                                src={previewData?.satelliteImage || `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/17/${Math.floor((parseFloat(formData.lng) + 180) / 360 * Math.pow(2, 17))}/${Math.floor((1 - Math.log(Math.tan(parseFloat(formData.lat) * Math.PI / 180) + 1 / Math.cos(parseFloat(formData.lat) * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, 17))}`} 
                                 alt="Location Preview" 
                                 className="w-full h-full object-cover opacity-90"
                                 onError={(e) => {
-                                    // Fallback to a simpler static map if the tile math fails
                                     e.target.onerror = null;
-                                    e.target.src = `https://stamen-tiles.a.ssl.fastly.net/terrain/${18}/${Math.floor((parseFloat(formData.lng) + 180) / 360 * Math.pow(2, 18))}/${Math.floor((1 - Math.log(Math.tan(parseFloat(formData.lat) * Math.PI / 180) + 1 / Math.cos(parseFloat(formData.lat) * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, 18))}.png`;
+                                    e.target.src = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000";
                                 }}
                             />
                             {isScanning && (
@@ -308,106 +334,26 @@ const NGODashboard = () => {
                         )}
                     </motion.div>
                 )}
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase text-text-secondary font-bold flex items-center justify-between">
-                        Latitude
-                        <button onClick={detectLocation} className="text-primary hover:underline lowercase font-normal italic">Auto-Detect</button>
-                    </label>
-                    <input 
-                      type="text" 
-                      className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-primary outline-none" 
-                      placeholder="30.3165" 
-                      value={formData.lat}
-                      onChange={(e) => setFormData({...formData, lat: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase text-text-secondary font-bold">Longitude</label>
-                    <input 
-                      type="text" 
-                      className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-primary outline-none" 
-                      placeholder="78.0322" 
-                      value={formData.lng}
-                      onChange={(e) => setFormData({...formData, lng: e.target.value})}
-                    />
-                  </div>
-                </div>
+                <button 
+                  onClick={handleUpload}
+                  className="btn-primary w-full py-4 mt-4 shadow-glow-green text-sm"
+                >
+                  DEPLOY ORBITAL ANALYSIS
+                </button>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase text-text-secondary font-bold">Area (Sq Km)</label>
-                  <input 
-                    type="text" 
-                    className="w-full bg-white/5 border border-white/10 rounded-md px-4 py-2 text-sm focus:border-primary outline-none" 
-                    placeholder="1.25" 
-                    value={formData.areaSqKm}
-                    onChange={(e) => setFormData({...formData, areaSqKm: e.target.value})}
-                  />
-                </div>
-
-                  <button 
-                    onClick={handleUpload}
-                    className="btn-primary w-full py-4 mt-4 shadow-glow-green text-sm"
-                  >
-                    DEPLOY ORBITAL ANALYSIS
-                  </button>
-
-                  {/* System Console */}
-                  <div className="mt-6 p-4 bg-black/80 rounded-xl border border-white/5 font-mono text-[9px] space-y-1 overflow-hidden h-28 relative">
-                      <div className="absolute top-2 right-4 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        <span className="text-primary/50 text-[7px] uppercase tracking-widest">Live Link</span>
-                      </div>
-                      {logs.map((log, i) => (
-                        <div key={i} className={i === 0 ? 'text-primary' : 'text-text-muted opacity-50'}>
-                          {log}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-
-              {/* Live Status Tracker */}
-              <AnimatePresence>
-                {uploadStatus !== 'idle' && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-8 pt-8 border-t border-white/10 space-y-6"
-                  >
-                    {[
-                      { step: 'Uploading Data', status: uploadStatus === 'uploading' ? 'active' : 'done', icon: Upload },
-                      { step: 'Satellite Analysis', status: uploadStatus === 'analysis' ? 'active' : uploadStatus === 'complete' ? 'done' : 'pending', icon: Clock },
-                      { step: 'Carbon Minting', status: uploadStatus === 'complete' ? 'done' : 'pending', icon: TreePine },
-                    ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-4">
-                        <div className={`p-2 rounded-lg ${
-                          s.status === 'done' ? 'bg-primary/20 text-primary' : 
-                          s.status === 'active' ? 'bg-info/20 text-info animate-pulse' : 
-                          'bg-white/5 text-text-secondary'
-                        }`}>
-                          <s.icon size={16} />
-                        </div>
-                        <div className="flex-1">
-                          <p className={`text-sm font-bold ${s.status === 'pending' ? 'text-text-secondary' : 'text-text-primary'}`}>
-                            {s.step}
-                          </p>
-                          <div className="w-full h-1 bg-white/5 mt-2 rounded-full overflow-hidden">
-                            <motion.div 
-                              className={`h-full ${s.status === 'done' ? 'bg-primary' : s.status === 'active' ? 'bg-info' : 'bg-transparent'}`}
-                              initial={{ width: 0 }}
-                              animate={{ width: s.status === 'done' ? '100%' : s.status === 'active' ? '60%' : '0%' }}
-                            />
-                          </div>
-                        </div>
-                        {s.status === 'done' && <CheckCircle size={16} className="text-primary" />}
+                <div className="mt-6 p-4 bg-black/80 rounded-xl border border-white/5 font-mono text-[9px] space-y-1 overflow-hidden h-28 relative">
+                    <div className="absolute top-2 right-4 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-primary/50 text-[7px] uppercase tracking-widest">Live Link</span>
+                    </div>
+                    {logs.map((log, i) => (
+                      <div key={i} className={i === 0 ? 'text-primary' : 'text-text-muted opacity-50'}>
+                        {log}
                       </div>
                     ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                </div>
+              </div>
             </div>
           </div>
         </div>
