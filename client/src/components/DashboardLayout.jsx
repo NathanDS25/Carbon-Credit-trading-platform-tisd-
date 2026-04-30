@@ -72,8 +72,8 @@ const DashboardLayout = ({ children, role }) => {
   };
 
   return (
-    <div className="app-root flex min-h-screen font-sans selection:bg-primary/30">
-      <div className="scanline" />
+    <div className="app-root flex min-h-screen font-sans selection:bg-primary/30 relative">
+      <div className="scanline pointer-events-none opacity-[0.03] z-0" />
       
       {/* Sidebar */}
       <motion.aside 
@@ -148,17 +148,9 @@ const DashboardLayout = ({ children, role }) => {
           </div>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative z-10">
+          {children}
+        </div>
       </main>
     </div>
   );

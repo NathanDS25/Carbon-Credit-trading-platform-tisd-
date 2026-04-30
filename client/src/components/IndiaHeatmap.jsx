@@ -125,7 +125,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
           return stateData ? 'rgba(0, 255, 180, 0.4)' : 'rgba(255, 255, 255, 0.05)';
         })
         .attr('stroke-width', 0.8)
-        .style('filter', 'drop-shadow(0 0 5px rgba(0, 255, 180, 0.3))') // GPU Accelerated CSS Glow
+        // Simplified: Remove heavy drop-shadow for scroll stability
         .on('mouseover', (event, d) => {
           const props = d.properties;
           const stateName = props.st_nm || props.NAME_1 || props.name || props.ST_NM;
@@ -291,7 +291,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
                }}
           />
 
-          <svg ref={svgRef} className="w-full h-[90%] max-w-[800px] drop-shadow-[0_0_80px_rgba(0,255,180,0.1)] relative z-10" />
+          <svg ref={svgRef} className="w-full h-[90%] max-w-[800px] relative z-10" />
 
           {/* Floating Data Point Label */}
           <AnimatePresence>
