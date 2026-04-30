@@ -134,7 +134,7 @@ const TradingTerminal = () => {
           </div>
 
           {/* Main Visualizer Container */}
-          <div className="flex-1 bg-[#080A0D] rounded-3xl border border-white/5 p-8 min-h-[600px] relative flex flex-col isolate">
+          <div className="flex-1 glass rounded-3xl border border-white/5 p-8 min-h-[750px] relative flex flex-col overflow-hidden">
             <div className="absolute top-8 left-8 z-10">
                 <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     {view === 'chart' ? <Activity size={16} className="text-primary" /> : <Globe size={16} className="text-primary" />}

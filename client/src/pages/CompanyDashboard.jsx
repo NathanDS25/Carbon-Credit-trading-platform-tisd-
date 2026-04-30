@@ -35,7 +35,7 @@ const StatCard = ({ title, value, change, icon: Icon, color, delay }) => (
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
     whileHover={{ y: -5, scale: 1.02 }}
-    className="bg-[#0A0C10] p-6 rounded-2xl border border-white/5 relative overflow-hidden group cursor-default"
+    className="glass p-6 rounded-2xl border border-white/5 relative overflow-hidden group card-glow cursor-default"
   >
     <div className={`absolute -top-4 -right-4 p-8 opacity-5 group-hover:opacity-10 transition-all duration-500 transform rotate-12 ${color}`}>
       <Icon size={80} />
@@ -152,12 +152,12 @@ const CompanyDashboard = () => {
             <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
               <Activity size={18} className="text-primary" /> Regional Impact Hologram
             </h2>
-            <div className="h-[600px] relative bg-[#080A0D] rounded-3xl border border-white/5 isolate">
+            <div className="min-h-[750px] relative glass rounded-3xl border border-white/5 overflow-hidden">
               <IndiaHeatmap data={heatmapData} onStateClick={(state) => console.log(state)} />
             </div>
           </div>
 
-          <div className="bg-[#0A0C10] rounded-3xl border border-white/5 flex flex-col overflow-hidden">
+          <div className="glass rounded-3xl border border-white/5 flex flex-col overflow-hidden">
             <div className="p-6 border-b border-white/5 bg-white/[0.01]">
               <h2 className="text-xl font-black tracking-tight text-text-primary">Live Order Book</h2>
               <div className="flex items-center gap-1.5 mt-1">

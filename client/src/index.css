@@ -25,7 +25,6 @@
   position: relative;
   min-height: 100vh;
   background: #080A0D;
-  overflow: hidden;
 }
 
 .app-root::before {

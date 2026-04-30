@@ -73,13 +73,13 @@ const DashboardLayout = ({ children, role }) => {
 
   return (
     <div className="app-root flex min-h-screen font-sans selection:bg-primary/30 relative">
-      {/* <div className="scanline pointer-events-none opacity-[0.03] z-0" /> */}
+      <div className="scanline pointer-events-none opacity-[0.03] z-0" />
       
-      {/* Sidebar — Solid background to prevent rendering crash */}
+      {/* Sidebar */}
       <motion.aside 
         initial={false}
         animate={{ width: collapsed ? '80px' : '260px' }}
-        className="bg-[#0A0C10] border-r border-white/5 flex flex-col z-50 relative m-4 mr-0 rounded-3xl"
+        className="glass border-r border-white/5 flex flex-col z-50 relative m-4 mr-0 rounded-3xl"
       >
         <div className="p-6 flex items-center justify-between border-b border-white/5">
           {!collapsed && (
@@ -136,21 +136,29 @@ const DashboardLayout = ({ children, role }) => {
 
       {/* Main Content */}
       <main className="flex-1 relative flex flex-col p-8 z-10">
-        {/* Top Sync Bar — Solid and non-sticky for maximum stability */}
-        <div className="flex justify-end gap-4 mb-6 z-[100] py-2">
-          <div className="bg-[#0A0C10] px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
+        {/* Top Sync Bar */}
+        <div className="flex justify-end gap-4 mb-6 sticky top-0 z-[100] py-2">
+          <div className="glass px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-glow-green animate-pulse" />
             <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">PostgreSQL Sync Active</span>
           </div>
-          <div className="bg-[#0A0C10] px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
+          <div className="glass px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <Database size={12} className="text-info" />
             <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em]">Prisma Engine: v5.8.1</span>
           </div>
         </div>
 
-        <div className="relative z-10">
-          {children}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );
