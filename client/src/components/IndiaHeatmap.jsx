@@ -97,9 +97,9 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
         .enter()
         .append('path')
         .attr('d', path)
-        .attr('fill', 'rgba(0, 20, 40, 0.4)')
-        .attr('stroke', 'rgba(0, 255, 180, 0.05)')
-        .attr('stroke-width', 1);
+        .attr('fill', 'rgba(0, 255, 180, 0.05)') // Solid color instead of expensive pattern
+        .attr('stroke', 'rgba(255, 255, 255, 0.05)')
+        .attr('stroke-width', 0.5);
 
       // 2. Particle Grid Overlay
       g.selectAll('.dot-path')
@@ -107,7 +107,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
         .enter()
         .append('path')
         .attr('d', path)
-        .attr('fill', 'url(#dot-pattern)')
+        .attr('fill', 'rgba(0, 255, 180, 0.02)')
         .style('pointer-events', 'none');
 
       // 3. Glowing Interactive States
@@ -117,7 +117,14 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
         .append('path')
         .attr('d', path)
         .attr('class', 'state-path cursor-pointer')
-        .attr('fill', 'transparent')
+        .attr('fill', d => {
+          const props = d.properties;
+          const stateName = props.st_nm || props.NAME_1 || props.name || props.ST_NM;
+          const stateData = data?.[stateName] || Object.values(data || {}).find(s => s.name === stateName);
+          if (!stateData) return 'rgba(0, 255, 180, 0.02)';
+          // Gradient-like solid fill for performance
+          return 'rgba(0, 255, 180, 0.15)';
+        })
         .attr('stroke', d => {
           const props = d.properties;
           const stateName = props.st_nm || props.NAME_1 || props.name || props.ST_NM;
@@ -257,7 +264,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
             y: is3D ? 20 : 0
           }}
           transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full h-full flex items-center justify-center will-change-transform"
+          className="relative w-full h-full flex items-center justify-center"
           style={{ transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }}
         >
           {/* Holographic Base Grid */}
