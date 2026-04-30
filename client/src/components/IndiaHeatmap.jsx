@@ -12,9 +12,20 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
   const [is3D, setIs3D] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredState, setHoveredState] = useState(null);
+  const [geoData, setGeoData] = useState(null);
+
+  // 1. Fetch GeoJSON once on mount
+  useEffect(() => {
+    d3.json(INDIA_GEOJSON_URL)
+      .then(json => {
+        setGeoData(json);
+        setIsLoaded(true);
+      })
+      .catch(err => console.error("GeoJSON Load Error:", err));
+  }, []);
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !geoData) return;
 
     const width = 600;
     const height = 700;
@@ -68,20 +79,17 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
     beamGradient.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(0, 255, 180, 0.1)');
     beamGradient.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(0, 255, 180, 0.8)');
 
-    // Radar Sweep Gradient
+    // Radar Sweep Gradient (Simplified)
     const radarSweep = defs.append('radialGradient')
       .attr('id', 'radar-sweep');
-    radarSweep.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(0, 255, 180, 0)');
-    radarSweep.append('stop').attr('offset', '80%').attr('stop-color', 'rgba(0, 255, 180, 0)');
-    radarSweep.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(0, 255, 180, 0.3)');
+    radarSweep.append('stop').attr('offset', '70%').attr('stop-color', 'rgba(0, 255, 180, 0)');
+    radarSweep.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(0, 255, 180, 0.2)');
 
-    // Projection initialized after data load for fitSize
-
-    d3.json(INDIA_GEOJSON_URL).then(geojson => {
-      const projection = d3.geoMercator().fitSize([width, height - 100], geojson);
-      const path = d3.geoPath().projection(projection);
-      const g = svg.append('g').attr('class', 'map-g');
-      setIsLoaded(true);
+    // Render using cached geoData
+    const geojson = geoData;
+    const projection = d3.geoMercator().fitSize([width, height - 100], geojson);
+    const path = d3.geoPath().projection(projection);
+    const g = svg.append('g').attr('class', 'map-g');
 
       // 1. Base Map Shape (Shadow)
       g.selectAll('.base-path')
@@ -117,7 +125,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
           return stateData ? 'rgba(0, 255, 180, 0.4)' : 'rgba(255, 255, 255, 0.05)';
         })
         .attr('stroke-width', 0.8)
-        .style('filter', 'url(#hologram-glow)')
+        .style('filter', 'drop-shadow(0 0 5px rgba(0, 255, 180, 0.3))') // GPU Accelerated CSS Glow
         .on('mouseover', (event, d) => {
           const props = d.properties;
           const stateName = props.st_nm || props.NAME_1 || props.name || props.ST_NM;
@@ -213,12 +221,8 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
       };
       animateRadar();
 
-      setIsLoaded(true);
-    }).catch(err => {
-      console.error("Failed to load India GeoJSON:", err);
-      // Fallback: If URL fails, we could potentially use a local copy or show an error
-    });
-  }, [data, is3D]);
+      animateRadar();
+  }, [data, is3D, geoData]);
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center bg-transparent overflow-hidden">
