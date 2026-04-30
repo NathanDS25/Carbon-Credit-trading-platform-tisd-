@@ -133,8 +133,8 @@ const TradingTerminal = () => {
             </div>
           </div>
 
-          {/* Main Visualizer Container — Optimized for 3D stability (Solid background to avoid backdrop-filter conflict) */}
-          <div className="flex-1 bg-[#080A0D] rounded-3xl border border-white/5 p-8 min-h-[700px] relative flex flex-col isolate" style={{ transformStyle: 'preserve-3d' }}>
+          {/* Main Visualizer Container */}
+          <div className="flex-1 bg-[#080A0D] rounded-3xl border border-white/5 p-8 min-h-[600px] relative flex flex-col isolate">
             <div className="absolute top-8 left-8 z-10">
                 <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     {view === 'chart' ? <Activity size={16} className="text-primary" /> : <Globe size={16} className="text-primary" />}

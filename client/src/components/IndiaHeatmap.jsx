@@ -9,7 +9,7 @@ const INDIA_GEOJSON_URL = 'https://raw.githubusercontent.com/geohacker/india/mas
 const IndiaHeatmap = ({ data, onStateClick }) => {
   const svgRef = useRef();
   const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: null });
-  const [is3D, setIs3D] = useState(true);
+  const [is3D, setIs3D] = useState(false); // Disabled by default for stability
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredState, setHoveredState] = useState(null);
   const [geoData, setGeoData] = useState(null);
@@ -225,7 +225,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
   }, [data, is3D, geoData]);
 
   return (
-    <div className="relative w-full h-full min-h-[700px] flex flex-col items-center justify-center bg-transparent overflow-hidden isolate pb-20">
+    <div className="relative w-full h-full min-h-[600px] flex flex-col items-center justify-center bg-transparent isolate">
       {/* HUD Header */}
       <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-start z-10">
         <div className="space-y-1">
@@ -248,8 +248,8 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
         </div>
       </div>
 
-      {/* Main Map Container */}
-      <div className="w-full h-full flex items-center justify-center perspective-[4000px] perspective-origin-center">
+      {/* Main Map Container — Self-contained perspective to prevent layout leaks */}
+      <div className="w-full h-full flex items-center justify-center" style={{ perspective: is3D ? '2000px' : 'none' }}>
         <motion.div 
           animate={{ 
             rotateX: is3D ? 35 : 0, 

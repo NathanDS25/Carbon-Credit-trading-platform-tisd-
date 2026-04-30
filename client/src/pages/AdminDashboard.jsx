@@ -257,7 +257,7 @@ const AdminDashboard = () => {
             <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
               <Globe size={18} className="text-primary" /> National Inventory Hologram
             </h2>
-            <div className="min-h-[700px] bg-[#080A0D] rounded-3xl border border-white/5 relative flex flex-col isolate" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="h-[600px] bg-[#080A0D] rounded-3xl border border-white/5 relative flex flex-col isolate">
                 <IndiaHeatmap 
                     data={heatmapData} 
                     onStateClick={(state) => navigate(`/admin/plantations?state=${state}`)} 

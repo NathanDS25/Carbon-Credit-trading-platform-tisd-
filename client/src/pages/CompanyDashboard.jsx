@@ -152,7 +152,7 @@ const CompanyDashboard = () => {
             <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
               <Activity size={18} className="text-primary" /> Regional Impact Hologram
             </h2>
-            <div className="min-h-[700px] relative bg-[#080A0D] rounded-3xl border border-white/5 isolate" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="h-[600px] relative bg-[#080A0D] rounded-3xl border border-white/5 isolate">
               <IndiaHeatmap data={heatmapData} onStateClick={(state) => console.log(state)} />
             </div>
           </div>
