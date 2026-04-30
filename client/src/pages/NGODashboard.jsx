@@ -219,7 +219,11 @@ const NGODashboard = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="glass p-8 rounded-xl border border-white/10 relative">
+            <div className="glass p-8 rounded-xl border border-primary/20 relative shadow-glow-green/5">
+              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                <span className="text-[8px] font-black text-primary uppercase tracking-widest">GPS Priority Link</span>
+              </div>
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Upload size={20} className="text-primary" /> Register Plantation
               </h3>

@@ -17,6 +17,7 @@ import {
   Cpu
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useWallet } from '../context/WalletContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SidebarItem = ({ to, icon: Icon, label, collapsed, active }) => (
@@ -43,9 +44,9 @@ const SidebarItem = ({ to, icon: Icon, label, collapsed, active }) => (
   </Link>
 );
 
-const DashboardLayout = ({ children, role }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { logout, user } = useAuth();
+  const { account, connectWallet, balance } = useWallet();
   const location = useLocation();
 
   const menuItems = {
@@ -139,13 +140,27 @@ const DashboardLayout = ({ children, role }) => {
       <main className="flex-1 h-screen overflow-y-auto relative p-8 z-10 custom-scrollbar">
         {/* Top Sync Bar */}
         <div className="flex justify-end gap-4 mb-6">
+          <button 
+            onClick={connectWallet}
+            className={`px-4 py-2 rounded-xl border transition-all flex items-center gap-3 group ${
+              account 
+                ? 'bg-primary/10 border-primary/30 text-primary shadow-glow-green/10' 
+                : 'bg-white/5 border-white/10 text-text-secondary hover:border-primary/50'
+            }`}
+          >
+            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${account ? 'bg-primary shadow-glow-green' : 'bg-text-muted'}`} />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em]">
+              {account ? `${parseFloat(balance).toFixed(4)} ETH | ${account.substring(0, 6)}...${account.substring(38)}` : 'Connect MetaMask'}
+            </span>
+          </button>
+
           <div className="bg-[#0A0C10]/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-glow-green animate-pulse" />
             <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">PostgreSQL Sync Active</span>
           </div>
           <div className="bg-[#0A0C10]/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <Database size={12} className="text-info" />
-            <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em]">Prisma Engine: v5.8.1</span>
+            <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em]">Prisma DB Active</span>
           </div>
         </div>
 

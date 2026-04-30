@@ -16,27 +16,14 @@ satelliteQueue.process(async (job) => {
     });
 
     // Call Python microservice
-    // Call Python microservice with failover
-    let result;
-    try {
-      const response = await axios.post(`${process.env.PYTHON_ML_URL}/analyse`, {
-        imageUrl,
-        lat,
-        lng,
-        areaSqKm,
-        plantationId,
-      });
-      result = response.data;
-    } catch (error) {
-      console.warn('⚠️ Satellite Engine Offline during Worker Job - Using Simulated Verification');
-      result = {
-        status: "VERIFIED",
-        ndviValue: 0.78 + (Math.random() * 0.1),
-        confidenceScore: 0.92,
-        qualityGrade: "A",
-        satelliteImage: `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=18&size=600x600&maptype=satellite&key=${process.env.GOOGLE_MAPS_API_KEY}`,
-      };
-    }
+    const response = await axios.post(`${process.env.PYTHON_ML_URL}/analyse`, {
+      imageUrl,
+      lat,
+      lng,
+      areaSqKm,
+      plantationId,
+    });
+    const result = response.data;
 
     // Update SatelliteJob and Plantation
     await prisma.satelliteJob.update({

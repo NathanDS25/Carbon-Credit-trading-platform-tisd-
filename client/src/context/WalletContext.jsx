@@ -1,61 +1,53 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import toast from 'react-hot-toast';
 
 const WalletContext = createContext();
 
 export const WalletProvider = ({ children }) => {
   const [account, setAccount] = useState(null);
-  const [balance, setBalance] = useState('0');
-  const [isConnected, setIsConnected] = useState(false);
   const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [balance, setBalance] = useState('0');
 
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         const browserProvider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await browserProvider.getSigner();
-        const userBalance = await browserProvider.getBalance(accounts[0]);
+        const browserSigner = await browserProvider.getSigner();
         
         setAccount(accounts[0]);
-        setBalance(ethers.formatEther(userBalance));
         setProvider(browserProvider);
-        setIsConnected(true);
-        
-        localStorage.setItem('walletConnected', 'true');
+        setSigner(browserSigner);
+
+        const balanceRaw = await browserProvider.getBalance(accounts[0]);
+        setBalance(ethers.formatEther(balanceRaw));
+
+        toast.success("Wallet Connected: " + accounts[0].substring(0, 6) + "...");
       } catch (error) {
-        console.error("Wallet connection failed:", error);
+        console.error("Wallet Connection Error:", error);
+        toast.error("Failed to connect MetaMask");
       }
     } else {
-      alert("Please install MetaMask!");
+      toast.error("MetaMask not found. Please install the extension.");
     }
-  };
-
-  const disconnectWallet = () => {
-    setAccount(null);
-    setBalance('0');
-    setIsConnected(false);
-    localStorage.removeItem('walletConnected');
   };
 
   useEffect(() => {
-    if (localStorage.getItem('walletConnected') === 'true') {
-      connectWallet();
-    }
-
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
         } else {
-          disconnectWallet();
+          setAccount(null);
         }
       });
     }
   }, []);
 
   return (
-    <WalletContext.Provider value={{ account, balance, isConnected, connectWallet, disconnectWallet, provider }}>
+    <WalletContext.Provider value={{ account, provider, signer, balance, connectWallet }}>
       {children}
     </WalletContext.Provider>
   );

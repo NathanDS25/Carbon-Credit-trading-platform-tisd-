@@ -1,0 +1,9 @@
+{
+  "name": "carbonx-root",
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "hardhat": "^2.22.19"
+  }
+}
