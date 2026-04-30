@@ -73,7 +73,7 @@ const DashboardLayout = ({ children, role }) => {
 
   return (
     <div className="app-root flex min-h-screen font-sans selection:bg-primary/30 relative">
-      <div className="scanline pointer-events-none opacity-[0.03] z-0" />
+      {/* <div className="scanline pointer-events-none opacity-[0.03] z-0" /> */}
       
       {/* Sidebar */}
       <motion.aside 
@@ -135,9 +135,9 @@ const DashboardLayout = ({ children, role }) => {
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 relative flex flex-col p-8 z-10 overflow-x-hidden">
-        {/* Top Sync Bar */}
-        <div className="flex justify-end gap-4 mb-6">
+      <main className="flex-1 relative flex flex-col p-8 z-10">
+        {/* Top Sync Bar — Forced to top layer to avoid 3D blackout */}
+        <div className="flex justify-end gap-4 mb-6 sticky top-0 z-[100] py-2" style={{ transform: 'translateZ(1000px)' }}>
           <div className="glass px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-glow-green animate-pulse" />
             <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">PostgreSQL Sync Active</span>
