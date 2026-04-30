@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import { ShoppingBag, Search, Filter, ArrowUpRight, Award, MapPin, MessageSquare } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const Marketplace = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const stateFilter = searchParams.get('state');
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const role = localStorage.getItem('userRole') || 'COMPANY';
 
   useEffect(() => {
     fetchListings();
-  }, []);
+  }, [stateFilter]);
 
   const fetchListings = async () => {
     try {
-      const response = await api.get('/marketplace');
+      const url = stateFilter ? `/marketplace?state=${encodeURIComponent(stateFilter)}` : '/marketplace';
+      const response = await api.get(url);
       setListings(response.data.data);
     } catch (error) {
       console.error("Failed to fetch listings:", error);
@@ -47,9 +52,9 @@ const Marketplace = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <ShoppingBag className="text-primary" size={32} /> Credit Marketplace
+              <ShoppingBag className="text-primary" size={32} /> {stateFilter ? `${stateFilter} Marketplace` : 'Credit Marketplace'}
             </h2>
-            <p className="text-text-secondary text-sm mt-1">Direct exchange for verified carbon offsets</p>
+            <p className="text-text-secondary text-sm mt-1">{stateFilter ? `Verified carbon offsets from ${stateFilter}` : 'Direct exchange for verified carbon offsets'}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -64,6 +69,14 @@ const Marketplace = () => {
             <button className="p-2 rounded-lg bg-surface border border-white/10 text-text-secondary hover:text-text-primary">
               <Filter size={18} />
             </button>
+            {stateFilter && (
+              <button 
+                onClick={() => navigate(role === 'ADMIN' ? '/admin/marketplace' : '/company/marketplace')}
+                className="px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-widest hover:bg-primary/20 transition-all"
+              >
+                Clear: {stateFilter}
+              </button>
+            )}
           </div>
         </div>
 

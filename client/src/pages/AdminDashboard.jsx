@@ -1,16 +1,19 @@
-// UI Enhanced v2 — 3D Map + Motion + Glassmorphism
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
+import IndiaHeatmap from '../components/IndiaHeatmap';
 import { Shield, Zap, Activity, Database, ExternalLink, CheckCircle2, XCircle, Globe, Cpu, Wallet } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useWallet } from '../context/WalletContext';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../contracts/CarbonCredit';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const stateFilter = searchParams.get('state');
   const [pendingPlantations, setPendingPlantations] = useState([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -22,14 +25,36 @@ const AdminDashboard = () => {
   const location = useLocation();
   const path = location.pathname;
 
+  const [heatmapData, setHeatmapData] = useState({});
+
   useEffect(() => {
     fetchData();
+    fetchHeatmap();
   }, []);
+
+  const fetchHeatmap = async () => {
+    try {
+      const response = await api.get('/heatmap');
+      if (response.data.success) {
+        const transformed = {};
+        response.data.data.forEach(item => {
+          transformed[item.state] = {
+            credits: item.totalCredits,
+            quality: item.avgQuality === 'A' ? 95 : item.avgQuality === 'B' ? 75 : 55
+          };
+        });
+        setHeatmapData(transformed);
+      }
+    } catch (error) {
+      console.error("Heatmap fetch error:", error);
+    }
+  };
 
   const fetchData = async () => {
     try {
+      const plantationsUrl = stateFilter ? `/plantations?status=PENDING&state=${stateFilter}` : '/plantations?status=PENDING';
       const [pResponse, sResponse] = await Promise.all([
-        api.get('/plantations?status=PENDING'),
+        api.get(plantationsUrl),
         api.get('/admin/stats')
       ]);
       setPendingPlantations(pResponse.data.data || []);
@@ -225,6 +250,37 @@ const AdminDashboard = () => {
               <kpi.icon className={`${kpi.color} opacity-20 group-hover:opacity-100 transition-all`} size={40} />
             </div>
           ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
+              <Globe size={18} className="text-primary" /> National Inventory Hologram
+            </h2>
+            <div className="h-[600px] glass rounded-3xl border border-white/5 relative overflow-hidden">
+                <IndiaHeatmap 
+                    data={heatmapData} 
+                    onStateClick={(state) => navigate(`/admin/plantations?state=${state}`)} 
+                />
+            </div>
+          </div>
+
+          <div className="glass p-8 rounded-3xl border border-white/5 space-y-6">
+            <h2 className="text-xl font-black tracking-tight text-text-primary">System Health</h2>
+            <div className="space-y-4">
+                {[
+                    { label: 'Node Sync', value: '99.9%', color: 'text-primary' },
+                    { label: 'Prisma Latency', value: '24ms', color: 'text-info' },
+                    { label: 'Blockchain TPS', value: '12.4', color: 'text-purple' },
+                    { label: 'ML Queue', value: 'Active', color: 'text-primary' },
+                ].map((item, i) => (
+                    <div key={i} className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{item.label}</span>
+                        <span className={`text-xs font-black ${item.color}`}>{item.value}</span>
+                    </div>
+                ))}
+            </div>
+          </div>
         </div>
       </motion.div>
     );

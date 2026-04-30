@@ -50,6 +50,7 @@ model User {
   role          Role
   walletAddress String?
   creditBalance Float     @default(0)
+  state         String?   @default("Maharashtra") // For regional filtering
   createdAt     DateTime  @default(now())
 
   plantations   Plantation[]
@@ -67,6 +68,7 @@ model Plantation {
   userId          String
   user            User             @relation(fields: [userId], references: [id])
   name            String
+  state           String?          @default("Maharashtra")
   lat             Float
   lng             Float
   areaSqKm        Float

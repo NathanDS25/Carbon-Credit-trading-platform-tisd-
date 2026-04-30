@@ -71,8 +71,11 @@ const CompanyDashboard = () => {
     ngoNetwork: 0
   });
 
+  const [heatmapData, setHeatmapData] = useState({});
+
   useEffect(() => {
     fetchStats();
+    fetchHeatmap();
   }, []);
 
   const fetchStats = async () => {
@@ -92,13 +95,24 @@ const CompanyDashboard = () => {
     }
   };
 
-  const [heatmapData] = useState({
-    'Maharashtra': { credits: 12500, quality: 95 },
-    'Karnataka': { credits: 8200, quality: 85 },
-    'Madhya Pradesh': { credits: 15400, quality: 70 },
-    'Kerala': { credits: 4500, quality: 98 },
-    'Tamil Nadu': { credits: 9800, quality: 82 },
-  });
+  const fetchHeatmap = async () => {
+    try {
+      const response = await api.get('/heatmap');
+      if (response.data.success) {
+        const transformed = {};
+        response.data.data.forEach(item => {
+          transformed[item.state] = {
+            credits: item.totalCredits,
+            quality: item.avgQuality === 'A' ? 95 : item.avgQuality === 'B' ? 75 : 55,
+            ngoCount: item.ngoCount
+          };
+        });
+        setHeatmapData(transformed);
+      }
+    } catch (error) {
+      console.error("Failed to fetch heatmap:", error);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },

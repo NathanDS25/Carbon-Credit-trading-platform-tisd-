@@ -37,9 +37,16 @@ const listCredits = async (req, res, next) => {
 
 const getListings = async (req, res, next) => {
   try {
+    const { state } = req.query;
+    const where = { status: 'ACTIVE' };
+    
+    if (state) {
+      where.seller = { state: state };
+    }
+
     const listings = await prisma.creditListing.findMany({
-      where: { status: 'ACTIVE' },
-      include: { seller: { select: { name: true, email: true } } },
+      where,
+      include: { seller: { select: { name: true, email: true, state: true } } },
     });
     res.json({ success: true, data: listings });
   } catch (error) {

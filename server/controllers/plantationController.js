@@ -58,9 +58,13 @@ const getMyPlantations = async (req, res, next) => {
 
 const getAllPlantations = async (req, res, next) => {
   try {
-    const { status } = req.query;
+    const { status, state } = req.query;
+    const where = status ? { status } : {};
+    if (state) {
+      where.state = state;
+    }
     const plantations = await prisma.plantation.findMany({
-      where: status ? { status } : {},
+      where,
       include: { user: true },
     });
     res.json({ success: true, data: plantations });
