@@ -45,19 +45,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
       .attr('in2', 'blur')
       .attr('operator', 'over');
 
-    // Holographic Noise Filter
-    const noiseFilter = defs.append('filter')
-      .attr('id', 'hologram-noise');
-    
-    noiseFilter.append('feTurbulence')
-      .attr('type', 'fractalNoise')
-      .attr('baseFrequency', '0.8')
-      .attr('numOctaves', '4')
-      .attr('result', 'noise');
-    
-    noiseFilter.append('feColorMatrix')
-      .attr('type', 'matrix')
-      .attr('values', '0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.1 0');
+    // (Noise filter removed in favor of CSS-optimized noise for performance)
 
     // Particle/Dot Pattern
     const pattern = defs.append('pattern')
@@ -265,8 +253,8 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
             y: is3D ? 20 : 0
           }}
           transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full h-full flex items-center justify-center"
-          style={{ transformStyle: 'preserve-3d' }}
+          className="relative w-full h-full flex items-center justify-center will-change-transform"
+          style={{ transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }}
         >
           {/* Holographic Base Grid */}
           {is3D && (
@@ -291,9 +279,12 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
                }} 
           />
           
-          {/* Noise Overlay */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-20"
-               style={{ filter: 'url(#hologram-noise)' }}
+          {/* Optimized Noise Overlay (CSS based) */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.015] z-20"
+               style={{ 
+                 backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                 backgroundRepeat: 'repeat',
+               }}
           />
 
           <svg ref={svgRef} className="w-full h-[90%] max-w-[800px] drop-shadow-[0_0_80px_rgba(0,255,180,0.1)] relative z-10" />
