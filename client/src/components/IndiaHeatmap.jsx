@@ -225,7 +225,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
   }, [data, is3D, geoData]);
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-transparent overflow-hidden">
+    <div className="relative w-full h-full min-h-[700px] flex flex-col items-center justify-center bg-transparent overflow-hidden isolate pb-20">
       {/* HUD Header */}
       <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-start z-10">
         <div className="space-y-1">
@@ -249,7 +249,7 @@ const IndiaHeatmap = ({ data, onStateClick }) => {
       </div>
 
       {/* Main Map Container */}
-      <div className="w-full h-full flex items-center justify-center perspective-[2000px]">
+      <div className="w-full h-full flex items-center justify-center perspective-[4000px] perspective-origin-center">
         <motion.div 
           animate={{ 
             rotateX: is3D ? 35 : 0, 
