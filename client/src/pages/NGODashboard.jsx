@@ -31,9 +31,11 @@ const NGODashboard = () => {
   const [selectedPlantation, setSelectedPlantation] = useState(null);
   const [previewData, setPreviewData] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [locationName, setLocationName] = useState('');
 
   useEffect(() => {
     fetchPlantations();
+    detectLocation(); // Proactive request
   }, []);
 
   const fetchPlantations = async () => {
@@ -52,13 +54,28 @@ const NGODashboard = () => {
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setFormData({
-          ...formData,
-          lat: position.coords.latitude.toFixed(6),
-          lng: position.coords.longitude.toFixed(6)
-        });
-        toast.success("Coordinates Locked via GPS");
+      toast.loading("Locating Orbital Position...", { id: 'gps' });
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        setFormData(prev => ({
+          ...prev,
+          lat: latitude.toFixed(6),
+          lng: longitude.toFixed(6)
+        }));
+        toast.success("GPS Lock Established", { id: 'gps' });
+        
+        // Reverse Geocoding for "Human Readable" location
+        try {
+          const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`);
+          const data = await res.json();
+          if (data.results?.[0]) {
+            setLocationName(data.results[0].formatted_address);
+          }
+        } catch (e) {
+          setLocationName(`${latitude.toFixed(2)}°N, ${longitude.toFixed(2)}°E`);
+        }
+      }, (error) => {
+        toast.error("Location Access Denied. Please enable GPS.", { id: 'gps' });
       });
     } else {
       toast.error("Geolocation not supported");
@@ -243,6 +260,10 @@ const NGODashboard = () => {
                             )}
                             <div className="absolute inset-0 flex items-center justify-center bg-black/10 pointer-events-none">
                                 <div className="w-32 h-32 border border-primary/40 rounded-full animate-pulse" />
+                            </div>
+                            <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10 flex items-center gap-2">
+                                <MapPin size={12} className="text-primary" />
+                                <span className="text-[10px] font-bold text-white truncate max-w-[200px]">{locationName || 'Detecting Area...'}</span>
                             </div>
                         </div>
 
