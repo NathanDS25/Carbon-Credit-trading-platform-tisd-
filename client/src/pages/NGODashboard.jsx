@@ -39,6 +39,11 @@ const NGODashboard = () => {
   useEffect(() => {
     fetchPlantations();
     detectLocation(); 
+    
+    // Listen for global wallet logs
+    const handleLog = (e) => addLog(e.detail);
+    window.addEventListener('terminal-log', handleLog);
+    return () => window.removeEventListener('terminal-log', handleLog);
   }, []);
 
   const fetchPlantations = async () => {
@@ -224,8 +229,14 @@ const NGODashboard = () => {
                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 <span className="text-[8px] font-black text-primary uppercase tracking-widest">GPS Priority Link</span>
               </div>
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <Upload size={20} className="text-primary" /> Register Plantation
+              <h3 className="text-xl font-bold mb-6 flex items-center justify-between">
+                <span className="flex items-center gap-2"><Upload size={20} className="text-primary" /> Register Plantation</span>
+                <button 
+                  onClick={detectLocation}
+                  className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-lg text-[10px] text-primary hover:bg-primary/20 transition-all font-black uppercase tracking-tighter"
+                >
+                  Force GPS Sync
+                </button>
               </h3>
 
               <div className="space-y-4">
