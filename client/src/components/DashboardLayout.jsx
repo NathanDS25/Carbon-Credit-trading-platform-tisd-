@@ -44,6 +44,7 @@ const SidebarItem = ({ to, icon: Icon, label, collapsed, active }) => (
   </Link>
 );
 
+const DashboardLayout = ({ children, role }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { logout, user } = useAuth();
   const { account, connectWallet, balance } = useWallet();
