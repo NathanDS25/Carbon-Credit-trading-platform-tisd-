@@ -151,6 +151,27 @@ const rejectPlantation = async (req, res, next) => {
   }
 };
 
+const previewAnalysis = async (req, res, next) => {
+  try {
+    const { lat, lng, areaSqKm } = req.body;
+    const axios = require('axios');
+    
+    console.log(`⏳ Probing satellite data for ${lat}, ${lng}...`);
+    const response = await axios.post(`${process.env.PYTHON_ML_URL}/analyse`, {
+      imageUrl: "", // Python service fetches its own if empty
+      lat: parseFloat(lat),
+      lng: parseFloat(lng),
+      areaSqKm: parseFloat(areaSqKm || 1.0),
+      plantationId: "PREVIEW"
+    });
+
+    res.json({ success: true, data: response.data });
+  } catch (error) {
+    console.error('Satellite Probe Failed:', error.message);
+    res.status(500).json({ success: false, error: 'Could not fetch satellite preview. Check your connection.' });
+  }
+};
+
 module.exports = {
   createPlantation,
   getMyPlantations,
@@ -158,4 +179,5 @@ module.exports = {
   getPlantationDetail,
   approvePlantation,
   rejectPlantation,
+  previewAnalysis,
 };

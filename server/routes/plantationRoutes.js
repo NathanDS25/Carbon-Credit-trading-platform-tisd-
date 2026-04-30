@@ -7,6 +7,7 @@ const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/', verifyToken, requireRole('NGO'), upload.single('image'), plantationController.createPlantation);
+router.post('/preview', verifyToken, requireRole('NGO'), plantationController.previewAnalysis);
 router.get('/mine', verifyToken, requireRole('NGO'), plantationController.getMyPlantations);
 router.get('/', verifyToken, requireRole('ADMIN'), plantationController.getAllPlantations);
 router.get('/:id', verifyToken, plantationController.getPlantationDetail);
