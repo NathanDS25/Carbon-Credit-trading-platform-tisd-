@@ -11,10 +11,10 @@ import api from '../services/api';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAjvqW7q3aucV3Qkp5ZELpDD4It70qMy98",
-  authDomain: "carbonxx-c0721.firebaseapp.com",
-  projectId: "carbonxx-c0721",
-  storageBucket: "carbonxx-c0721.firebasestorage.app",
+  apiKey: "AIzaSyAjvqW7q3aucV3Qkp5ZELpDD4It70qMy98", // Ensure this is the key for carbonx-31b29
+  authDomain: "carbonx-31b29.firebaseapp.com",
+  projectId: "carbonx-31b29",
+  storageBucket: "carbonx-31b29.firebasestorage.app",
   messagingSenderId: "118401187090",
   appId: "1:118401187090:web:c322948d982089ae7c07cb",
   measurementId: "G-T1YRXZEMV2"

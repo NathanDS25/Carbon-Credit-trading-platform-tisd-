@@ -4,6 +4,7 @@ import { Upload, TreePine, MapPin, CheckCircle, Clock, AlertCircle } from 'lucid
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import SatelliteIntelligence from '../components/SatelliteIntelligence';
 
 const PortfolioStrip = ({ stats }) => (
   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -27,6 +28,7 @@ const NGODashboard = () => {
   const [uploadStatus, setUploadStatus] = useState('idle'); // idle, uploading, analysis, complete
   const [formData, setFormData] = useState({ name: '', lat: '', lng: '', areaSqKm: '' });
   const [file, setFile] = useState(null);
+  const [selectedPlantation, setSelectedPlantation] = useState(null);
 
   useEffect(() => {
     fetchPlantations();
@@ -36,6 +38,9 @@ const NGODashboard = () => {
     try {
       const response = await api.get('/plantations/mine');
       setPlantations(response.data.data);
+      if (response.data.data.length > 0 && !selectedPlantation) {
+        setSelectedPlantation(response.data.data[0]);
+      }
     } catch (error) {
       console.error("Failed to fetch plantations:", error);
     } finally {
@@ -86,6 +91,9 @@ const NGODashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Satellite Analysis Hub */}
+            <SatelliteIntelligence plantation={selectedPlantation} />
+
             {/* My Plantations Table */}
             <div className="glass rounded-xl border border-white/5 overflow-hidden">
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -109,7 +117,11 @@ const NGODashboard = () => {
                         <td colSpan="5" className="px-6 py-12 text-center text-text-secondary">No plantations found. Start by registering one!</td>
                       </tr>
                     ) : plantations.map((p, i) => (
-                      <tr key={i} className="table-row-alt hover:bg-white/5 transition-all">
+                      <tr 
+                        key={i} 
+                        className={`table-row-alt hover:bg-white/5 transition-all cursor-pointer ${selectedPlantation?.id === p.id ? 'bg-primary/5 border-l-2 border-primary' : ''}`}
+                        onClick={() => setSelectedPlantation(p)}
+                      >
                         <td className="px-6 py-4 font-semibold">{p.name}</td>
                         <td className="px-6 py-4 flex items-center gap-2 text-text-secondary text-xs">
                           <MapPin size={12} /> {p.lat.toFixed(4)}, {p.lng.toFixed(4)}
@@ -173,6 +185,25 @@ const NGODashboard = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
+                  {formData.lat && formData.lng && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="h-32 rounded-xl overflow-hidden border border-white/10 relative mt-2"
+                    >
+                        <img 
+                            src={`https://maps.googleapis.com/maps/api/staticmap?center=${formData.lat},${formData.lng}&zoom=15&size=400x200&maptype=satellite&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ''}`} 
+                            alt="Location Preview" 
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <MapPin className="text-primary animate-bounce" size={20} />
+                        </div>
+                        <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 rounded text-[8px] font-bold uppercase tracking-widest border border-white/10">
+                            GPS Lock Active
+                        </div>
+                    </motion.div>
+                )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

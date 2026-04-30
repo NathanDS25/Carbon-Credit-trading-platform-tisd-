@@ -3,8 +3,30 @@ import { useAuth } from '../context/AuthContext';
 import { LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+
 const Login = () => {
   const { loginWithGoogle } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      await loginWithGoogle();
+      // Force immediate check and redirect
+      window.location.href = '/role-selection';
+    } catch (error) {
+      console.error("Google Auth Error:", error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        toast.error("Login cancelled. Please try again.");
+      } else {
+        toast.error("Auth failed: " + error.message);
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   return (
     <div className="h-screen w-full relative flex items-center justify-center overflow-hidden">
@@ -38,11 +60,16 @@ const Login = () => {
 
         <div className="space-y-4">
           <button 
-            onClick={loginWithGoogle}
-            className="w-full flex items-center justify-center gap-3 bg-white text-background font-bold py-3 rounded-lg hover:bg-white/90 transition-all duration-300"
+            onClick={handleGoogleLogin}
+            disabled={isLoggingIn}
+            className="w-full flex items-center justify-center gap-3 bg-white text-background font-bold py-3 rounded-lg hover:bg-white/90 transition-all duration-300 disabled:opacity-50"
           >
-            <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-            Sign in with Google
+            {isLoggingIn ? (
+              <div className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+            )}
+            {isLoggingIn ? 'Establishing Secure Link...' : 'Sign in with Google'}
           </button>
 
           <div className="relative py-4">

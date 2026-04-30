@@ -2,6 +2,7 @@ const { z } = require('zod');
 const prisma = require('../config/prisma');
 const { addAnalysisJob } = require('../services/satelliteService');
 const { mintCreditsOnChain } = require('../services/blockchainService');
+const { uploadToSupabase } = require('../services/uploadService');
 
 const plantationSchema = z.object({
   name: z.string().min(3),
@@ -14,7 +15,19 @@ const plantationSchema = z.object({
 const createPlantation = async (req, res, next) => {
   try {
     const validatedData = plantationSchema.parse(req.body);
-    const { name, lat, lng, areaSqKm, imageUrl } = validatedData;
+    const { name, lat, lng, areaSqKm } = validatedData;
+    
+    // Handle image upload if present
+    let imageUrl = req.body.imageUrl;
+    if (req.file) {
+      console.log('⏳ Uploading image to Supabase...');
+      imageUrl = await uploadToSupabase(req.file);
+      console.log('✅ Image uploaded:', imageUrl);
+    }
+
+    if (!imageUrl) {
+        return res.status(400).json({ success: false, error: 'Satellite image is required' });
+    }
     
     const plantation = await prisma.plantation.create({
       data: {
