@@ -6,7 +6,7 @@ const DB_URL = 'postgresql://postgres.lqdlnxlkfevzkssxirab:Crackinmya$$69@aws-1-
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: DB_URL,
+      url: process.env.DATABASE_URL,
     },
   },
 });

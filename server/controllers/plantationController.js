@@ -170,6 +170,9 @@ const previewAnalysis = async (req, res, next) => {
       console.error('Satellite Engine Error:', error.message);
       res.status(500).json({ success: false, error: 'Satellite Analysis Engine is currently offline.' });
     }
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
