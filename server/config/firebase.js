@@ -2,8 +2,7 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-const privateKeyPath = path.join(__dirname, 'firebase-key.txt');
-const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
 
 if (!admin.apps.length) {
   admin.initializeApp({

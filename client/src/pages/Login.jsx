@@ -94,13 +94,13 @@ const Login = () => {
 
           <button 
             onClick={() => {
-              // Bypass auth for dev
+              // Dev bypass for role selection test
               localStorage.setItem('token', 'MOCK_DEV_TOKEN');
               window.location.href = '/role-selection';
             }}
-            className="w-full btn-primary mt-4"
+            className="w-full text-[10px] text-text-secondary hover:text-primary transition-all uppercase tracking-widest mt-8 font-black"
           >
-            Access Terminal (Dev Mode)
+            Terminal Access Mode (Dev)
           </button>
         </div>
 

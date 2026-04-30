@@ -11,7 +11,7 @@ const verifyToken = async (req, res, next) => {
   }
 
   // Support for development mock mode with dynamic role sync
-  if (token === 'MOCK_DEV_TOKEN') {
+  if (token === 'MOCK_DEV_TOKEN' || token === 'DEMO_BYPASS_TOKEN') {
     let user = await prisma.user.findUnique({
         where: { id: 'dev-user-id' }
     });
