@@ -23,8 +23,10 @@
 /* Layered Animated Background */
 .app-root {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   background: #080A0D;
+  overflow: hidden;
 }
 
 .app-root::before {

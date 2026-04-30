@@ -72,14 +72,15 @@ const DashboardLayout = ({ children, role }) => {
   };
 
   return (
-    <div className="app-root flex min-h-screen font-sans selection:bg-primary/30 relative">
+    <div className="app-root flex h-screen w-screen font-sans selection:bg-primary/30 relative overflow-hidden">
+      {/* Background aurora stays fixed */}
       <div className="scanline pointer-events-none opacity-[0.03] z-0" />
       
-      {/* Sidebar */}
+      {/* Sidebar - Fixed Height */}
       <motion.aside 
         initial={false}
         animate={{ width: collapsed ? '80px' : '260px' }}
-        className="glass border-r border-white/5 flex flex-col z-50 relative m-4 mr-0 rounded-3xl"
+        className="bg-[#0A0C10]/80 backdrop-blur-xl border-r border-white/5 flex flex-col z-50 relative m-4 mr-0 rounded-3xl h-[calc(100vh-2rem)]"
       >
         <div className="p-6 flex items-center justify-between border-b border-white/5">
           {!collapsed && (
@@ -134,31 +135,23 @@ const DashboardLayout = ({ children, role }) => {
         </div>
       </motion.aside>
 
-      {/* Main Content */}
-      <main className="flex-1 relative flex flex-col p-8 z-10">
+      {/* Main Content - Isolated Scroll Area */}
+      <main className="flex-1 h-screen overflow-y-auto relative p-8 z-10 custom-scrollbar">
         {/* Top Sync Bar */}
-        <div className="flex justify-end gap-4 mb-6 sticky top-0 z-[100] py-2">
-          <div className="glass px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
+        <div className="flex justify-end gap-4 mb-6">
+          <div className="bg-[#0A0C10]/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-glow-green animate-pulse" />
             <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">PostgreSQL Sync Active</span>
           </div>
-          <div className="glass px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
+          <div className="bg-[#0A0C10]/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/5 flex items-center gap-3">
             <Database size={12} className="text-info" />
             <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em]">Prisma Engine: v5.8.1</span>
           </div>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          >
+        <div className="relative z-10 min-h-full">
             {children}
-          </motion.div>
-        </AnimatePresence>
+        </div>
       </main>
     </div>
   );
