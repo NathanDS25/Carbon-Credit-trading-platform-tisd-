@@ -52,6 +52,10 @@ const SatelliteIntelligence = ({ plantation }) => {
                  src={plantation.satelliteImageUrl || latestJob.satelliteImage || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000'} 
                  alt="Satellite View" 
                  className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
+                 onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000";
+                 }}
                />
                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                

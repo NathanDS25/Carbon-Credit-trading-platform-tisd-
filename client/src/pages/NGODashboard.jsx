@@ -246,11 +246,15 @@ const NGODashboard = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       className="rounded-xl overflow-hidden border border-white/10 relative mt-2 bg-black/40 shadow-2xl"
                     >
-                        <div className="aspect-video relative">
+                        <div className="aspect-video relative bg-[#0A0C10]">
                             <img 
                                 src={previewData?.satelliteImage || `https://maps.googleapis.com/maps/api/staticmap?center=${formData.lat},${formData.lng}&zoom=17&size=600x300&maptype=satellite&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ''}`} 
                                 alt="Location Preview" 
                                 className="w-full h-full object-cover opacity-80"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000"; // High-res orbital forest placeholder
+                                }}
                             />
                             {isScanning && (
                                 <div className="absolute inset-0 bg-primary/20 flex flex-col items-center justify-center backdrop-blur-sm">
